@@ -9,7 +9,7 @@ namespace FUST.ECommerce.Services
         {
             try
             {
-                var products = new List<Product>();
+                 var products = new List<Product>();
 
                 using (var connection = new MySqlConnection("DefaultConnection"))
                 {
