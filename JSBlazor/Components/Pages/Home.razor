@@ -1,0 +1,48 @@
+﻿@page "/"
+@using System.Diagnostics
+@inject IJSRuntime JS
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<hr />
+
+<button class="btn btn-primary" @onclick="CallAdd">add</button>
+<button class="btn btn-secondary" @onclick="CallChangeText">change text</button>
+
+<button type="button" class="btn btn-info" @onclick="ShowAlert">alert</button>
+<button type="button" class="btn btn-warning" @onclick="ShowConfirm">confirm</button>
+
+<hr />
+
+<div @ref="_el"></div>
+
+@code {
+
+    private ElementReference? _el;
+
+    private async Task ShowAlert()
+    {
+        await JS.InvokeVoidAsync("alert", "Hello from Blazor!");
+    }
+
+    private async Task ShowConfirm()
+    {
+        var result = await JS.InvokeAsync<bool>("confirm", "Are you sure?");
+        await JS.InvokeVoidAsync("alert", $"Result: {result}");
+    }
+
+    private async Task CallAdd()
+    {
+        int result = await JS.InvokeAsync<int>("add", 2, 3);
+
+        Debug.WriteLine($"Somma: {result}");
+    }
+
+    private async Task CallChangeText()
+    {
+        await JS.InvokeVoidAsync("setContent", _el, DateTime.Now.ToString());
+    }
+}

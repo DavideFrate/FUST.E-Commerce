@@ -5,13 +5,18 @@ namespace FUST.ECommerce.Services
 {
     public class ProductsDataAccess : IProductsDataAccess
     {
+        private readonly string _connectionString;
+        public ProductsDataAccess(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
+        }
         public async Task<IEnumerable<Product>> GetProductsAsync()
         {
             try
             {
                  var products = new List<Product>();
 
-                using (var connection = new MySqlConnection("DefaultConnection"))
+                using (var connection = new MySqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
 
@@ -43,7 +48,7 @@ namespace FUST.ECommerce.Services
         {
             try
             {
-                using (var connection = new MySqlConnection("DefaultConnection"))
+                using (var connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
                     using (var command = new MySqlCommand("INSERT INTO products (name, price, categoryID) VALUES (@name, @price, @categoryID)", connection))
@@ -67,7 +72,7 @@ namespace FUST.ECommerce.Services
         {
             try
             {
-                using (var connection = new MySqlConnection("DefaultConnection"))
+                using (var connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
                     using (var command = new MySqlCommand("UPDATE products SET name = @name, price = @price, categoryID = @categoryID"))

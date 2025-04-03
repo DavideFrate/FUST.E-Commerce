@@ -1,0 +1,31 @@
+﻿@page "/customers"
+@using System.Reflection
+@using nonMudNonBlazor.Models;
+@using nonMudNonBlazor.Services;
+@inject ICustomersDataAccess CustomersDataAccess;
+
+<PageTitle>Customers</PageTitle>
+
+<h3>Customers</h3>
+
+<table class="customers-table">
+    <thead>
+        <tr>
+            @code{
+
+
+            }
+        </tr>
+    </thead>
+</table>
+
+@code {
+    public List<Customer> customers;
+
+    public Type type = customers[0].GetType();
+    public PropertyInfo[] properties = type.GetProperties();
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomersDataAccess.GetCustomersAsync();
+    }
+}

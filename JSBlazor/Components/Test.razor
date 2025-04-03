@@ -1,0 +1,60 @@
+﻿@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<h3>Test</h3>
+
+<button type="button"
+class="btn btn-danger"
+@onclick="ShowMessage">
+    Show
+</button>
+
+<button type="button"
+class="btn btn-success"
+@onclick="CallDotNet">
+    Call .NET From JS
+</button>
+
+<div>@_message</div>
+
+@code {
+
+    private IJSObjectReference? _module;
+    private string _message;
+
+    private async Task CallDotNet()
+    {
+        var dotnetRef = DotNetObjectReference.Create(this);
+        if (_module is not null)
+            await _module.InvokeVoidAsync("runSample", 5000, "Ciao ITS!", dotnetRef);
+    }
+
+    [JSInvokable]
+    private async Task SetValue(string message)
+    {
+        _message = message;
+        await InvokeAsync(StateHasChanged);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                                "import",
+                                "./Components/Test.razor.js");
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async Task ShowMessage()
+    {
+        if (_module is not null)
+            await _module.InvokeVoidAsync("showMessage", "ciao");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+            await _module.DisposeAsync();
+    }
+}

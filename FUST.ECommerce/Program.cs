@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using FUST.ECommerce.Components;
 using FUST.ECommerce.Components.Account;
 using FUST.ECommerce.Data;
+using FUST.ECommerce.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,9 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<IUsersDataAccess, UsersDataAccess>();
+builder.Services.AddScoped<IProductsDataAccess, ProductsDataAccess>();
+builder.Services.AddScoped<ICategoriesDataAccess, CategoriesDataAccess>();
 
 builder.Services.AddAuthentication(options =>
     {

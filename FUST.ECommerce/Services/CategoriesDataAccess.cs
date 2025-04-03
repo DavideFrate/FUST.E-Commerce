@@ -5,13 +5,18 @@ namespace FUST.ECommerce.Services
 {
     public class CategoriesDataAccess : ICategoriesDataAccess
     {
+        private readonly string _connectionString;
+        public CategoriesDataAccess(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
+        }
         public async Task<IEnumerable<Category>> GetCategories()
         {
             try
             {
                 var categories = new List<Category>();
 
-                using (var connection = new MySqlConnection("DefaultConnection"))
+                using (var connection = new MySqlConnection(_connectionString))
                 {
                     await connection.OpenAsync();
                     using (var command = new MySqlCommand("SELECT * FROM categories", connection))
@@ -40,7 +45,7 @@ namespace FUST.ECommerce.Services
         {
             try
             {
-                using (var connection = new MySqlConnection("DefaultConnection"))
+                using (var connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
                     using (var command = new MySqlCommand("INSERT INTO categories (name) VALUES (@name)", connection))
@@ -60,7 +65,7 @@ namespace FUST.ECommerce.Services
         {
             try
             {
-                using (var connection = new MySqlConnection("DefaultConnection"))
+                using (var connection = new MySqlConnection(_connectionString))
                 {
                     connection.Open();
                     using (var command = new MySqlCommand("UPDATE categories SET name = @name WHERE categoryID = @categoryID", connection))

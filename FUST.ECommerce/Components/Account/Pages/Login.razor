@@ -4,11 +4,12 @@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using FUST.ECommerce.Data
+@using FUST.ECommerce.Models
+@using FUST.ECommerce.Services
 
-@inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
-@inject IdentityRedirectManager RedirectManager
+@inject IUsersDataAccess UsersDataAccess
 
 <PageTitle>Log in</PageTitle>
 
@@ -67,6 +68,8 @@
 @code {
     private string? errorMessage;
 
+    private User? user { get; set; }
+
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
@@ -85,31 +88,17 @@
         }
     }
 
-    public async Task LoginUser()
+    public async Task LoginUser(EditContext editContext)
     {
-        // This doesn't count login failures towards account lockout
-        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-        if (result.Succeeded)
+        user = await UsersDataAccess.GetUserByEmailAsync(Input.Email);
+        if (user == null || user.Password != Input.Password)
         {
-            Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
+            errorMessage = "Invalid login attempt.";
+            return;
         }
-        else if (result.RequiresTwoFactor)
-        {
-            RedirectManager.RedirectTo(
-                "Account/LoginWith2fa",
-                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
-        }
-        else if (result.IsLockedOut)
-        {
-            Logger.LogWarning("User account locked out.");
-            RedirectManager.RedirectTo("Account/Lockout");
-        }
-        else
-        {
-            errorMessage = "Error: Invalid login attempt.";
-        }
+
+        Logger.LogInformation("User logged in.");
+        NavigationManager.NavigateTo("/auth", forceLoad: true);
     }
 
     private sealed class InputModel
